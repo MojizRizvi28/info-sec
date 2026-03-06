@@ -1,1 +1,294 @@
-https://drive.google.com/drive/folders/1Q9AW7Gr-bVIgsb5da5zZ-K3lhvNv4Byv?usp=sharing
+//practical 3
+
+import pandas as pd
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import LabelEncoder
+import matplotlib.pyplot as plt
+# Step 1: Load movies dataset
+
+movies = pd.read_csv("movies.csv")
+movies
+
+# Step 2: Encode Genre labels into numbers
+le = LabelEncoder()
+movies["Genre_Code"] = le.fit_transform(movies["Genre"])
+# Features and target
+X = movies[["Duration", "IMDB_Rating"]]
+y = movies["Genre_Code"]
+# Train KNN classifier (k=3)
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X, y)
+
+# Step 3: Add new movie Dhurandhar
+dhurandhar_df = pd.DataFrame([[214, 8.6]], columns=["Duration", "IMDB_Rating"])
+# Predict genre code for Dhurandhar
+pred_code = knn.predict(dhurandhar_df)[0]
+#Step 4: Predict the genre for the new movie Dhurandhar
+# Convert predicted code back to text
+pred_genre = le.inverse_transform([pred_code])[0]
+print("Predicted Genre for Dhurandhar:", pred_genre)
+
+# Step 5: Plot original data and Dhurandhar
+colors = ["red", "green", "blue"]
+plt.figure(figsize=(8,5))
+for i, genre_name in enumerate(le.classes_):
+    subset = movies[movies["Genre"] == genre_name]
+    plt.scatter(subset["Duration"], subset["IMDB_Rating"],color=colors[i], label=genre_name, s=70)
+plt.scatter(214, 8.6, color="black", marker="X", s=150, label="Dhurandhar")
+plt.xlabel("Duration (minutes)")
+plt.ylabel("IMDb Rating")
+plt.title("KNN Classification of Movies")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+//practical 4 (R studio)
+
+movies <- data.frame(
+Duration = c(90, 95, 100, 110, 120, 130, 140, 150),
+IMDB_Rating = c(6.5, 6.8, 7.0, 7.5, 8.0, 8.2, 8.5, 8.8)
+)
+
+print(movies)
+set.seed(1)
+kmeans_result <- kmeans(movies, centers = 3)
+movies$Cluster <- kmeans_result$cluster
+print(movies)
+plot(movies$Duration, movies$IMDB_Rating,
+col = movies$Cluster,
+pch = 19,
+xlab = "Movie Duration (minutes)",
+ylab = "IMDb Rating",
+main = "K-Means Clustering of Movies")
+points(kmeans_result$centers[,1], kmeans_result$centers[,2],
+col = 1:3, pch = 8, cex = 2)
+
+
+//practical 5
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+# Step 1: Create Data
+diameter = np.array([8, 10, 12, 14, 16]).reshape(-1, 1)
+price = np.array([10, 13, 16, 19, 22])
+
+# Step 2: Create Linear Regression Model
+model = LinearRegression()
+model.fit(diameter, price)
+
+# Step 3: Get Equation
+intercept = model.intercept_
+slope = model.coef_[0]
+print("Regression Equation:")
+print(f"Price = {intercept:.2f} + {slope:.2f} * Diameter")
+
+# Step 4: Plot Graph
+plt.figure(figsize=(8,6))
+plt.scatter(diameter, price)
+plt.plot(diameter, model.predict(diameter))
+plt.title("Linear Regression - Pizza Data")
+plt.xlabel("Diameter (inches)")
+plt.ylabel("Price (dollars)")
+
+# Step 5: Save Plot
+plt.savefig("Linear_Regression_Plot.png")
+plt.show()
+print("Plot saved as Linear_Regression_Plot.png")
+
+
+//practical 6 
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_curve, roc_auc_score
+
+# Load dataset
+quality = pd.read_csv("quality.csv")
+
+# Select features and target
+X = quality[['OfficeVisits', 'Narcotics']]
+y = quality['PoorCare']
+
+# Split data (75% train, 25% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=88)
+
+# Train Logistic Regression model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Predict probabilities
+
+y_prob = model.predict_proba(X_test)[:, 1]
+
+# ROC Curve
+fpr, tpr, _ = roc_curve(y_test, y_prob)
+auc = roc_auc_score(y_test, y_prob)
+plt.plot(fpr, tpr)
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curve (Logistic Regression)")
+plt.show()
+print("Intercept:", model.intercept_)
+print("Coefficients:", model.coef_)
+print("AUC Score:", auc)
+
+
+//practical 7
+
+import pandas as pd
+file_path="Book2.csv"
+
+df = pd.read_csv(file_path)
+print("\nz’‘ First 5 rows of the dataset:")
+print(df.head()) # Show the first 5 rows
+print("\n‘’zDataset Summary:")
+print(df.info())
+print("\n‘’z Basic Statistics:")
+print(df.describe())
+print("\n’‘zMissing Valuesin Each Column:")
+print(df.isnull().sum())
+print("\n‘’z Column Names:")
+print(df.columns)
+if 'Salary' in df.columns:
+    print(f"\n’z‘ Average Salary: {df['Salary'].mean():.2f}")
+if 'Age' in df.columns:
+    print(f"\n‘’z Youngest Person's Age: {df['Age'].min()}")
+    print(f"‘’z Oldest Person's Age: {df['Age'].max()}")
+if 'Gender' in df.columns:
+    print("\n‘’z Gender Distribution:")
+    print(df['Gender'].value_counts())
+print("\n⬛ Data Analysis Completed Successfully!")
+
+
+//practical 8
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# --- Step 1: Generate Sample Sales Data ---
+np.random.seed(42) # Added for consistent results
+dates = pd.date_range(start='2023-01-01', periods=100, freq='D')
+categories = ['Electronics', 'Clothing', 'Groceries', 'Furniture']
+
+data = {
+    'Date': np.random.choice(dates, 200),
+    'Category': np.random.choice(categories, 200),
+    'Sales_Amount': np.random.randint(100, 1000, 200),
+    'Units_Sold': np.random.randint(1, 20, 200)
+}
+
+df = pd.DataFrame(data)
+
+# --- Step 2: Data Pre-processing ---
+df['Date'] = pd.to_datetime(df['Date'])
+
+# Summary Statistics
+print("--- Summary Statistics ---")
+print(df.describe())
+
+# --- Step 3: Visualizations ---
+
+# 1. Sales Trend Over Time
+plt.figure(figsize=(12, 6))
+# Grouping data to show total daily sales
+daily_sales = df.groupby('Date')['Sales_Amount'].sum().reset_index()
+sns.lineplot(data=daily_sales, x='Date', y='Sales_Amount')
+plt.title('Sales Trend Over Time')
+plt.xlabel('Date')
+plt.ylabel('Total Sales')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# 2. Sales by Category (FIXED: Added hue mapping to avoid FutureWarning)
+plt.figure(figsize=(10, 5))
+category_sales = df.groupby('Category', as_index=False)['Sales_Amount'].sum()
+sns.barplot(
+    data=category_sales, 
+    x='Category', 
+    y='Sales_Amount', 
+    hue='Category',   # Fixes the warning
+    legend=False,     # Removes redundant legend
+    palette='viridis'
+)
+plt.title('Total Sales by Category')
+plt.xlabel('Category')
+plt.ylabel('Sales Amount')
+plt.show()
+
+# 3. Distribution of Sales Amounts
+plt.figure(figsize=(10, 5))
+sns.histplot(df['Sales_Amount'], bins=20, kde=True, color='blue')
+plt.title('Distribution of Sales Amounts')
+plt.xlabel('Sales Amount')
+plt.ylabel('Frequency')
+plt.show()
+
+# 4. Scatter Plot: Sales Amount vs. Units Sold
+plt.figure(figsize=(10, 5))
+sns.scatterplot(
+    data=df, 
+    x='Units_Sold', 
+    y='Sales_Amount', 
+    hue='Category', 
+    palette='coolwarm'
+)
+plt.title('Sales Amount vs. Units Sold')
+plt.xlabel('Units_Sold')
+plt.ylabel('Sales Amount')
+plt.legend(title='Category', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+
+
+//practical 9
+
+CREATE DATABASE Sales_Staging;
+USE Sales_Staging;
+CREATE TABLE Staging_Sales(
+SalesID INT PRIMARY KEY,
+OrderDate DATE,
+ProductName VARCHAR(100),
+Category VARCHAR(50),
+Region VARCHAR(50),
+SalesAmount DECIMAL(10,2),
+Profit DECIMAL(10,2),
+Quantity INT,
+LoadDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+BatchID INT );
+
+INSERT INTO Staging_Sales(SalesID, OrderDate, ProductName, Category, Region, SalesAmount,
+Profit, Quantity, BatchID)
+VALUES
+(1, '2024-01-01', 'Laptop', 'Electronics', 'North', 1200.00, 200.00, 3, 101),
+(2, '2024-01-02', 'Smartphone', 'Electronics', 'South', 800.00, 150.00, 2, 101),
+(3, '2024-01-03', 'Tablet', 'Electronics', 'East', 600.00, 100.00, 5, 101);
+
+DELETE FROM Staging_Sales
+WHERE SalesID NOT IN (
+SELECT MIN(SalesID) FROM Staging_Sales GROUP BY OrderDate, ProductName, Region
+);
+
+UPDATE Staging_Sales
+SET Profit = 0
+WHERE Profit IS NULL;
+
+INSERT INTO Final_Sales(
+SalesID, OrderDate, ProductName, Category, Region, SalesAmount, Profit, Quantity
+)
+SELECT
+SalesID,OrderDate, ProductName, Category, Region, SalesAmount, Profit,Quantity
+FROM Staging_Sales;
+
+DELETE FROM Staging_Sales WHERE BatchID = 101;
+
+
+
